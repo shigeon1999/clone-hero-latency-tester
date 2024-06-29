@@ -15,6 +15,7 @@ const MIN_BEATS = 10;
 let tempo = Cell(120);
 let latency = Cell();
 let userTempo = Cell();
+let isPreparing = false;
 
 // each time a beat plays, the time it played is added to here.
 // this'll be used to subtract from the user times (at the same index)
@@ -100,8 +101,9 @@ elements.stop.addEventListener('click', () => {
   clearInterval(progressInterval);
 
   isRunning.current = false;
+  isPreparing = false;
   elements.progress.style.display = 'none';
-  elements.tapZone.innerHTML = 'tap here to start';
+  elements.tapZone.innerHTML = 'Tap here to start';
 });
 
 function countdownMessage(count) {
@@ -115,6 +117,13 @@ function countdownMessage(count) {
 
 let gettingReadyTimeout;
 let progressInterval;
+
+document.addEventListener('keydown', (event) => {
+  if (event.code === 'Space') {
+    event.preventDefault();
+    elements.tapZone.click();
+  }
+});
 
 elements.tapZone.addEventListener('click', () => {
   if (isRunning.current && countdown.current === 0) {
@@ -134,6 +143,11 @@ elements.tapZone.addEventListener('click', () => {
     return;
   }
 
+  if (isPreparing) {
+    return;
+  }
+
+  isPreparing = true;
   isRunning.current = true;
   elements.tapZone.innerHTML = `Get ready`;
   elements.progress.style.display = 'block';
@@ -145,6 +159,7 @@ elements.tapZone.addEventListener('click', () => {
     increments += 1;
     elements.progress.value = fiveS - increments * 100;
   }, 100);
+
   gettingReadyTimeout = setTimeout(() => {
     countdown.current = 3;
     elements.tapZone.innerHTML = countdownMessage(countdown.current);
@@ -159,9 +174,10 @@ elements.tapZone.addEventListener('click', () => {
 
         gettingReadyTimeout = setTimeout(() => {
           countdown.current = 0;
-          elements.tapZone.innerHTML = 'Tap';
+          elements.tapZone.innerHTML = 'Tap<br><span style="font-size: x-small;">Space</span>';
           clearInterval(progressInterval);
           elements.progress.style.display = 'none';
+          isPreparing = false;
 
           start();
         }, 1000);
