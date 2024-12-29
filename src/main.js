@@ -186,26 +186,37 @@ elements.tapZone.addEventListener('click', () => {
   }, 2000);
 });
 
-function handleGamepadInput() {
-  const gamepads = navigator.getGamepads();
-  for (const gamepad of gamepads) {
-    if (!gamepad) continue;
-
-    // Assuming the POV hat is mapped to the D-pad (axes 9)
-    const povHat = gamepad.axes[9];
-    if (povHat === -1 || povHat === 1) { // Up or Down
-      elements.tapZone.click();
+async function requestHIDPermission() {
+  try {
+    const devices = await navigator.hid.requestDevice({ filters: [] });
+    if (devices.length > 0) {
+      console.log('HID device access granted.');
+      handleHIDInput(devices);
+    } else {
+      console.log('No HID devices selected.');
     }
+  } catch (error) {
+    console.error('Failed to request HID device access:', error);
   }
 }
 
-window.addEventListener('gamepadconnected', (event) => {
-  console.log('Gamepad connected:', event.gamepad);
-  setInterval(handleGamepadInput, 100); // Check gamepad input every 100ms
-});
+function handleHIDInput(devices) {
+  for (const device of devices) {
+    device.addEventListener('inputreport', (event) => {
+      const { data } = event;
+      const povHat = data.getUint8(0); // Assuming the POV hat is the first byte
+      if (povHat === 0 || povHat === 4) { // Up or Down
+        elements.tapZone.click();
+      }
+    });
+    device.open().then(() => {
+      console.log(`Opened HID device: ${device.productName}`);
+    }).catch(console.error);
+  }
+}
 
-window.addEventListener('gamepaddisconnected', (event) => {
-  console.log('Gamepad disconnected:', event.gamepad);
+window.addEventListener('load', () => {
+  requestHIDPermission();
 });
 
 DEBUG_RENDERER.render({
