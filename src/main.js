@@ -284,7 +284,7 @@ DEBUG_RENDERER.render({
     // We can't get milliseconds with more precisions than 1 decimal place.
     // This is probably fine, as human's can't perceive the difference between
     // tenths of milliseconds.
-    let rounded = ms ? ms.toFixed(1) : 0;
+    let rounded = ms ? (ms / 2).toFixed(1) : 0; // Display half of the latency value
     let beatDuration = MS_IN_M / bpm;
     let mod = rounded ? (rounded % (MS_IN_M / bpm)).toFixed(1) : 'pending';
 
