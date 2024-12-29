@@ -69,6 +69,10 @@ function playSound(buffer, delay = 0) {
   player.start(delay);
 }
 
+function playCountdownSound() {
+  playSound(audioBuffer);
+}
+
 async function start() {
   let currentBpmInMs = MS_IN_M / tempo.current;
 
@@ -163,14 +167,17 @@ elements.tapZone.addEventListener('click', () => {
   gettingReadyTimeout = setTimeout(() => {
     countdown.current = 3;
     elements.tapZone.innerHTML = countdownMessage(countdown.current);
+    playCountdownSound();
 
     gettingReadyTimeout = setTimeout(() => {
       countdown.current = 2;
       elements.tapZone.innerHTML = countdownMessage(countdown.current);
+      playCountdownSound();
 
       gettingReadyTimeout = setTimeout(() => {
         countdown.current = 1;
         elements.tapZone.innerHTML = countdownMessage(countdown.current);
+        playCountdownSound();
 
         gettingReadyTimeout = setTimeout(() => {
           countdown.current = 0;
