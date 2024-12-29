@@ -217,6 +217,8 @@ function handleHIDInput(devices) {
 
 window.addEventListener('load', () => {
   requestHIDPermission();
+  // ...existing code...
+  requestHIDPermission();
 });
 
 DEBUG_RENDERER.render({
